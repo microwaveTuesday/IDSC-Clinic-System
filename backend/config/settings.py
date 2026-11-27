@@ -290,11 +290,11 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
     "SCHEMA_PATH_PREFIX": r"/api/",
-    # Canonical local development server.
+    # Resolve requests against the origin serving Swagger, including hosted proxies.
     "SERVERS": [
         {
-            "url": "http://127.0.0.1:8000",
-            "description": "Local Django development server",
+            "url": "/",
+            "description": "Current Clinic API origin",
         },
     ],
     # Preserve drf-spectacular's enum postprocessing and then
