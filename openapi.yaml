@@ -4042,5 +4042,5 @@ components:
       description: Django session cookie authentication. State-changing session-authenticated
         requests must also satisfy Django CSRF protection.
 servers:
-- url: http://127.0.0.1:8000
-  description: Local Django development server
+- url: /
+  description: Current Clinic API origin
