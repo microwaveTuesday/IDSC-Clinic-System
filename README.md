@@ -1,6 +1,8 @@
 # IDSC Clinic Management System
 
-Live school demo: [Clinic website](https://idsc-clinic-management.vercel.app), [Swagger UI](https://idsc-clinic-management.vercel.app/docs), and [health](https://idsc-clinic-management.vercel.app/health). Hosted on Vercel and Render Free with Supabase PostgreSQL; cloud recovery uses Brevo HTTPS. See [hosted release setup and limits](docs/CLOUD-RELEASE.md). Real Registrar/Inventory gateway integration and the first main-branch automated release remain outstanding.
+Live school demo: [Clinic website](https://idsc-clinic-management.vercel.app), [Swagger UI](https://idsc-clinic-management.vercel.app/docs), and [health](https://idsc-clinic-management.vercel.app/health). Hosted on Vercel and Render Free with Supabase PostgreSQL; cloud recovery uses Brevo HTTPS. The [approved main release](https://github.com/microwaveTuesday/IDSC-Clinic-System/actions/runs/45954207664) passed quality checks, deployment and public smoke checks on 27 November 2026. Real Registrar/Inventory gateway integration remains outstanding. See [hosted setup and limits](docs/CLOUD-RELEASE.md).
+
+Current showcase preparation: [executed live tests and remaining checks](docs/SHOWCASE-LIVE-TESTS.md) and [Swagger Authorize instructions](docs/SWAGGER-AUTHORIZATION.md). Live results are distinguished from isolated CI tests; incomplete integration and recovery evidence is not claimed as complete.
 
 Forgotten-password recovery: [Gmail setup and recovery API](docs/PASSWORD-RECOVERY.md). The email must already be saved on the account; Gmail delivery and reset were confirmed by the user on 20 November 2026. Each installation requires its own private sender configuration. Unknown emails show an error.
 
@@ -85,18 +87,19 @@ Dispensing reduces stock. **Roll back** returns stock and marks the entry ROLLED
 ## Architecture, storage and limitations
 
 ```text
-React -> Django API -> ClinicService -> MockClinicRepository
-                           |       |
-                       Registrar Inventory
-                       mock      mock
+Hosted school demo:
+React -> Vercel proxy -> Django API -> ClinicService -> Supabase PostgreSQL
+                                           |       |
+                                       Registrar Inventory
+                                       mock      mock
 ```
 
-| Data | Storage | Backend restart |
-| --- | --- | --- |
-| Accounts, hashes, roles, sessions, permanent Owner registration | Django database; SQLite default | Retained |
-| Clinic records, consultations, statuses, dispensing history | Process memory | Reset |
-| Mock Registrar profiles/status edits | Process memory | Reset |
-| Mock Inventory catalog/stock/transactions, restocks, notifications | Process memory | Reset |
+| Data | Default local storage | Hosted school-demo storage | Hosted backend restart |
+| --- | --- | --- | --- |
+| Accounts, hashes, roles, sessions, permanent Owner registration | SQLite | Supabase PostgreSQL | Retained |
+| Clinic records, consultations, statuses, dispensing history | Process memory unless database mode is selected | Supabase PostgreSQL | Retained |
+| Mock Registrar profiles/status edits | Process memory | Process memory | Reset |
+| Mock Inventory catalog/stock/transactions, restocks, notifications | Process memory; optional durable mock | Process memory | Reset |
 
 Browser reloads retain server state. Default startup loads sample data. Private `backend/.env` option `CLINIC_EMPTY_START=1` starts all mock stores empty on each restart; it does not erase accounts or reopen registration. Populate through Owner mock workspaces. Use one backend process for demonstrations.
 

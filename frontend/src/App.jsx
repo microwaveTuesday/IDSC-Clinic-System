@@ -1012,8 +1012,8 @@ export default function App() {
               <div className="sample-note">
                 <Icon name="eye" size={14} />
                 <span>
-                  Connected to the Clinic API. Business data uses the verified
-                  mock repository and resets when the backend restarts.
+                  Demonstration student and medicine data may reset when the
+                  service restarts.
                 </span>
               </div>
             </>
