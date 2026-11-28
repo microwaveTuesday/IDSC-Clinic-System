@@ -34,10 +34,10 @@ include `SHOWCASE-001` (active), `SHOWCASE-002` (graduated), `SHOWCASE-003`
 Known synthetic login details are kept privately under ignored `.runtime/`;
 they are not included in the report or repository.
 
-The first Staff fixture needs credential recovery/removal after corrected Owner
-test access is supplied. Other synthetic Staff credentials were saved before
-creation and remain available for rehearsal. The Owner's credentials were not
-changed by the tests.
+Corrected private Owner access was supplied later on 28 November. The orphan
+first Staff fixture was deleted and recreated through the authorized API;
+all eleven retained Staff and one retained rehearsal Admin now have privately
+saved login details. The Owner's credentials were not changed by the tests.
 
 ## Executed live checks
 
@@ -66,18 +66,27 @@ Nine separate public/security checks also passed.
 
 ## Unexpected results and remaining checks
 
-1. The supplied private Owner username matched, but its password was rejected
-   with 401. The working browser session enabled other authorized tests.
-   Admin creation/management, the live five-Admin boundary, and password-confirmed
-   account deletion remain pending until corrected Owner access is supplied.
+1. The earlier private Owner login returned 401. Corrected private access later
+   returned 200 with role OWNER. An additional, separate ledger of 83 live
+   Owner/Admin/account checks then passed: five-Admin capacity, inactive Admins
+   counting toward the limit, deletion freeing a slot, Owner Admin lifecycle,
+   Admin Staff lifecycle, wrong-password deletion rejection, account deletion
+   preserving clinical records, revoked sessions, and Admin clinical/history
+   deletion. Only named synthetic fixtures were changed. Extra limit-test
+   Admins were removed; one Admin and eleven Staff remain for rehearsal.
 2. The hosted proxy weakened an ETag (`W/`), so using it as a strong `If-Match`
    precondition returned 409. The existing `X-Record-Version` header, copied from
    the latest `updated_at`, passed both current and stale-version checks.
    Do not treat a weak ETag as a strong representation validator.
 
-Still unverified live: Staff restricted-page visibility and full hosted reset
-email-link redemption. Prior inbox receipt/opening and isolated CI password
-recovery do not establish completed hosted redemption.
+Eight additional live Staff UI checks passed: Administration/mock menus and
+clinical/history delete controls were absent; normal clinic features remained
+available. The Owner session was restored afterward. The main 193-entry ledger
+retains its original results rather than rewriting the earlier failed attempt.
+
+Still unverified live: full hosted reset email-link redemption. Prior inbox
+receipt/opening and isolated CI password recovery do not establish completed
+hosted redemption.
 
 Real provider gateway and partner-offline tests need the other groups' finished
 API/agreements. Exact shared class/Figma and peer-module UI conformity need
@@ -96,7 +105,13 @@ The committed OpenAPI also differed from the live PostgreSQL schema in four
 medicine quantity range/format entries. DRF inferred a 64-bit limit on SQLite
 and a 32-bit limit on PostgreSQL. The serializer now explicitly uses the
 deployed PostgreSQL `PositiveIntegerField` maximum, 2,147,483,647. The corrected
-candidate `openapi.yaml` exactly equals the live schema: 50 paths / 77 operations.
+merged `openapi.yaml` exactly equals the live schema: 50 paths / 77 operations.
 No routes or request/response field names were changed, and no migration is
 required. Regression tests check the portable range and both request/response
 schema entries on each CI database.
+
+The approved PR10 release passed all 12 quality jobs but stopped at the staged
+frontend's initial HTTP 404 before promotion. The same address subsequently
+loaded the Clinic login page. See [STAGING-READINESS.md](STAGING-READINESS.md)
+for the bounded-readiness correction; a new successful production release is
+still required before claiming the corrected notice is published.

@@ -2,15 +2,45 @@
 
 import json
 import os
+import time
 from urllib.error import HTTPError
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
-from prepare_cloud_frontend import https_origin
+try:
+    from .prepare_cloud_frontend import https_origin
+except ImportError:  # Direct invocation by the release workflow.
+    from prepare_cloud_frontend import https_origin
 
 
 class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
+
+
+def frontend_ready(origin, headers, *, opener=None, sleep=time.sleep,
+                   now=time.monotonic, timeout=120):
+    """Wait for the new address, without weakening any content/auth checks."""
+    opener = opener or build_opener(NoRedirect)
+    deadline = now() + timeout
+    while True:
+        remaining = deadline - now()
+        if remaining <= 0:
+            raise RuntimeError("Frontend readiness timed out; promotion is blocked.")
+        try:
+            with opener.open(Request(origin + "/", headers=headers),
+                             timeout=min(30, remaining)) as response:
+                return response.headers, response.read(2_000_000)
+        except HTTPError as exc:
+            # A just-created Vercel address can briefly return 404 before its
+            # routes propagate. Auth failures and redirects must fail at once.
+            if exc.code not in {404, 502, 503, 504}:
+                raise
+            exc.close()
+            remaining = deadline - now()
+            if remaining <= 0:
+                raise RuntimeError("Frontend readiness timed out; promotion is blocked.") from None
+            print("Frontend address not ready; retrying within the readiness deadline.")
+            sleep(min(10, remaining))
 
 
 def check(origin):
@@ -25,7 +55,7 @@ def check(origin):
         with build_opener(NoRedirect).open(Request(origin + path, headers=headers), timeout=30) as response:
             return response.headers, response.read(2_000_000)
 
-    _, page = get("/")
+    _, page = frontend_ready(origin, headers)
     if b'<html' not in page.lower() or b'IDSC' not in page:
         raise ValueError("The deployed frontend is not the Clinic website.")
     _, body = get("/health")
