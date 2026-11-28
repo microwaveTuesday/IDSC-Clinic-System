@@ -191,6 +191,9 @@ class MedicineDispensationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MedicineDispensation
+        # Match PostgreSQL's PositiveIntegerField range on every database so
+        # SQLite-generated OpenAPI also describes the deployed contract.
+        extra_kwargs = {"quantity": {"max_value": 2_147_483_647}}
         fields = [
             "dispensation_id",
             "student_id",

@@ -3020,9 +3020,8 @@ components:
           maxLength: 100
         quantity:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 2147483647
           minimum: 1
-          format: int64
         reason:
           type: string
         status:
@@ -3104,9 +3103,8 @@ components:
           maxLength: 100
         quantity:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 2147483647
           minimum: 1
-          format: int64
         reason:
           type: string
       required:
